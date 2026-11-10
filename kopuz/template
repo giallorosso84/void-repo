@@ -1,0 +1,53 @@
+# Template file for 'kopuz'
+pkgname=kopuz
+version=0.67.0
+revision=1
+build_style=cargo
+hostmakedepends="pkg-config cargo-auditable cmake git nodejs pnpm"
+makedepends="alsa-lib-devel opus-devel gtk4-devel libadwaita-devel libwebkit2gtk41-devel libsoup3-devel sqlite-devel openssl-devel glib-devel gdk-pixbuf-devel libxkbcommon-devel gstreamer1-devel gst-plugins-base1-devel gst-plugins-bad1-devel dbus-devel libXtst-devel libXi-devel xdotool-devel"
+short_desc="Your next music player"
+maintainer="giallorosso84@voidlinux.com"
+license="EUPL-1.2"
+homepage="https://github.com/Kopuz-org/kopuz"
+distfiles="https://github.com/Kopuz-org/kopuz/archive/refs/tags/v${version}.tar.gz"
+checksum=2e7262dd5caa765ace1fbbbc5abc3ce96a2bc9c2cd1ba004743c04b7d7d9f207
+# calculate: ./xbps-src show-srcrev kopuz
+
+do_build() {
+  # new frontend by 0.23+ require pnpm
+  if [ -f pnpm-lock.yaml ]; then
+    pnpm install --frozen-lockfile
+    pnpm build || true
+  fi
+  cargo auditable build --release --target ${RUST_TARGET}
+}
+
+do_install() {
+  vbin target/${RUST_TARGET}/release/kopuz
+  vbin target/${RUST_TARGET}/release/kopuzctl 2>/dev/null || true
+  vbin target/${RUST_TARGET}/release/kopuzd 2>/dev/null || true
+
+  # icon - path is changed by 0.60, call fallback
+  if [ -f crates/kopuz/assets/logo.svg ]; then
+    vinstall crates/kopuz/assets/logo.svg 644 usr/share/icons/hicolor/scalable/apps kopuz.svg
+  elif [ -f assets/logo.svg ]; then
+    vinstall assets/logo.svg 644 usr/share/icons/hicolor/scalable/apps kopuz.svg
+  fi
+  
+  vinstall crates/kopuz/assets/logo-512.png 644 usr/share/icons/hicolor/512x512/apps kopuz.png 2>/dev/null || \
+  vinstall assets/logo-512.png 644 usr/share/icons/hicolor/512x512/apps kopuz.png 2>/dev/null || true
+  vinstall crates/kopuz/assets/logo-512.png 644 usr/share/pixmaps kopuz.png 2>/dev/null || true
+
+  vmkdir usr/share/applications
+  cat > ${DESTDIR}/usr/share/applications/kopuz.desktop <<DESKTOP
+[Desktop Entry]
+Name=Kopuz
+Comment=Your next music player
+Exec=kopuz
+Icon=kopuz
+Terminal=false
+Type=Application
+Categories=Audio;Music;Player;
+StartupWMClass=kopuz
+DESKTOP
+}
