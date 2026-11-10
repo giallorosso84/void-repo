@@ -1,0 +1,19 @@
+# Template file for 'reprise'
+pkgname=reprise
+version=0.1.331
+revision=1
+build_style=meson
+build_helper="rust"
+hostmakedepends="pkg-config meson ninja cargo rust gettext"
+makedepends="gtk4-devel libadwaita-devel sqlite-devel gst-plugins-base1-devel gst-plugins-bad1-devel gstreamer1-devel glib-devel libmtp-devel gvfs-devel libxml2-devel libsoup3-devel openssl-devel dbus-devel desktop-file-utils"
+short_desc="A native GTK4/libadwaita music player for GNOME — fast column-view library, GStreamer playback with equalizer and ReplayGain, MPRIS, playlists, scrobbling, lyrics, and Android sync."
+maintainer="giallorosso84@voidlinux.com>"
+license="GPL-3.0-or-later"
+homepage="https://github.com/marvinbaudach/reprise"
+distfiles="https://github.com/marvinbaudach/reprise/archive/refs/tags/v${version}.tar.gz"
+checksum=5d7ce0e179f20b196fcc88890d8f3fb3e57bea32e9f5f66608363c4a8d985dfb
+
+configure_args="-Dprofile=release"
+
+depends="hicolor-icon-theme desktop-file-utils gvfs-mtp gst-plugins-good1 gst-plugins-bad1 gst-plugins-base1"
+
