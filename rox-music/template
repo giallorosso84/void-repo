@@ -1,0 +1,65 @@
+# Template file for 'rox'
+pkgname=rox-music
+version=1.34.1
+revision=1
+build_style=cargo
+build_wrksrc="rox-1.34.1"
+make_install_args="--path crates/rox"
+make_build_args="--package rox --package rox-mcp"
+short_desc="Desktop music player for large, carefully tagged local libraries"
+maintainer="Claudio Pantaleo <giallorosso84.com>"
+license="AGPL-3.0-only"
+homepage="https://github.com/zealsprince/rox"
+changelog="https://github.com/zealsprince/rox/releases"
+distfiles="https://github.com/zealsprince/rox/archive/refs/tags/v${version}.tar.gz
+ https://static.crates.io/crates/gpui/gpui-0.2.2.crate
+ https://static.crates.io/crates/gpui-component/gpui-component-0.5.1.crate
+ https://github.com/projectM-visualizer/projectm/archive/88f23c76743a38c6d8456a8c354c62186270f661.tar.gz
+ https://github.com/projectM-visualizer/projectm-eval/archive/22fb0cfd8f2dfbcd2b68f2443e7f44e19b32c09a.tar.gz"
+checksum="31fcd2a90f2bcc9e1a3d1935eef5ebc07665aa517719a387dc14e72cb1ab3410
+ 979b45cfa6ec723b6f42330915a1b3769b930d02b2d505f9697f8ca602bee707
+ d021d46b4088d3d93a57ccdf443da85695a77272108caca2f6fe5369f584966a
+ 4b6bf022dafbb8eba86bb150bd46e7fabc175ab2cc9279e521b30dd980f1ec70
+ 48002253353392393a1a5a4d2b0fc04497cfff774f3a9df084ef5078aa4f28ee"
+
+hostmakedepends="pkg-config cmake tar patch"
+makedepends="wayland-devel libxkbcommon-devel libxcb-devel libX11-devel vulkan-loader-devel libglvnd-devel fontconfig-devel freetype-devel alsa-lib-devel oniguruma-devel sqlite-devel openssl-devel zlib-devel"
+
+export LASTFM_API_KEY="88e26d5b524f6a7b61734350d32afc32"
+export LASTFM_API_SECRET="51ece542496dc6b5641eb3feb2735f3b"
+export DISCORD_APPLICATION_ID="1531533372051030036"
+export ACOUSTID_CLIENT_KEY="NM7UnN9N7Z"
+
+post_patch() {
+  [ -d rox-1.34.1 ] && cd rox-1.34.1
+  export LC_ALL=C
+  mkdir -p vendor
+  # gpui
+  mkdir -p vendor/gpui
+  tar -xzf ${XBPS_SRCDISTDIR}/rox-music-1.34.1/gpui-0.2.2.crate -C vendor/gpui --strip-components=1
+  for p in patches/gpui/*.patch; do
+    patch -p1 -F0 -d vendor/gpui --no-backup-if-mismatch --quiet < "$p"
+  done
+  # gpui-component
+  mkdir -p vendor/gpui-component
+  tar -xzf ${XBPS_SRCDISTDIR}/rox-music-1.34.1/gpui-component-0.5.1.crate -C vendor/gpui-component --strip-components=1
+  for p in patches/gpui-component/*.patch; do
+    patch -p1 -F0 -d vendor/gpui-component --no-backup-if-mismatch --quiet < "$p"
+  done
+  # projectm
+  mkdir -p vendor/projectm
+  tar -xzf ${XBPS_SRCDISTDIR}/rox-music-1.34.1/88f23c76743a38c6d8456a8c354c62186270f661.tar.gz -C vendor/projectm --strip-components=1
+  mkdir -p vendor/projectm/vendor/projectm-eval
+  tar -xzf ${XBPS_SRCDISTDIR}/rox-music-1.34.1/22fb0cfd8f2dfbcd2b68f2443e7f44e19b32c09a.tar.gz -C vendor/projectm/vendor/projectm-eval --strip-components=1
+  for p in patches/projectm/*.patch; do
+    patch -p1 -F0 -d vendor/projectm --no-backup-if-mismatch --quiet < "$p"
+  done
+}
+
+post_install() {
+  [ -d rox-1.34.1 ] && cd rox-1.34.1
+  vinstall crates/rox/assets/app/rox.desktop 644 usr/share/applications
+  vinstall crates/rox/assets/app/rox-music.svg 644 usr/share/icons/hicolor/scalable/apps rox.svg
+  vinstall crates/rox/assets/app/rox.png 644 usr/share/pixmaps rox.png
+  vinstall crates/rox/assets/app/rox.metainfo.xml 644 usr/share/metainfo
+}
