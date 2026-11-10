@@ -1,0 +1,21 @@
+# Template file for 'zapfast-bin'
+pkgname=zapfast-bin
+version=0.20.1
+revision=1
+archs="x86_64"
+depends="libglvnd libxkbcommon wayland libX11 alsa-lib libpipewire hicolor-icon-theme"
+short_desc="ZapFast: a fast, native WhatsApp client in Rust and egui, based on whatsappp-rust"
+maintainer="giallorosso84@voidlinux.com"
+license="MIT"
+homepage="https://github.com/crmne/zapfast"
+distfiles="https://github.com/crmne/zapfast/releases/download/v${version}/zapfast-v${version}-x86_64-unknown-linux-gnu.tar.gz"
+checksum=e5943bc2219d0f311d4e1613222b80e32efb2a8dc2d29cff5d92d424a88db132
+restricted=yes
+wrksrc="zapfast-v${version}-x86_64-unknown-linux-gnu"
+
+do_install() {
+    vbin zapfast
+    vinstall packaging/applications/zapfast.desktop 644 usr/share/applications
+    vinstall packaging/icons/zapfast.svg 644 usr/share/icons/hicolor/scalable/apps
+    vlicense LICENSE
+}
