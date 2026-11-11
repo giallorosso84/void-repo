@@ -1,0 +1,14 @@
+# Template file for 'paint.software'
+pkgname=paint.software
+version=1.1.112
+revision=1
+build_style=cmake
+hostmakedepends="cmake pkg-config qt6-tools"
+makedepends="qt6-base-devel"
+depends="qt6-base"
+short_desc="Open-source clone of Paint.NET for Linux - C++/Qt6 image editor"
+maintainer="giallorosso84@voidlinux.com"
+license="MIT"
+homepage="https://github.com/Univers4craft/paint.software"
+distfiles="https://github.com/Univers4craft/paint.software/archive/refs/tags/v${version}.tar.gz"
+checksum=925503b58ca37f55cb0c4049e2056f3615b1a29f8cffa3944077650d9308402b
