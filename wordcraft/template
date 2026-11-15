@@ -1,0 +1,81 @@
+# Template for 'wordcraft'
+pkgname=wordcraft
+version=0.18.1
+revision=1
+build_style=cargo
+make_build_args="-p wordcraft -p wordcraft-cli"
+hostmakedepends="pkg-config"
+short_desc="WordCraft: an open-source, clean-room word processor in pure Rust"
+maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
+license="Apache-2.0, MIT"
+homepage="https://getartcraft.com/apps/wordcraft"
+distfiles="https://github.com/storytold/wordcraft/archive/refs/tags/v${version}.tar.gz
+           https://github.com/storytold/craft-i18n/archive/1e515422afdda2f317af430c1f9d68a5f83935b4.tar.gz"
+
+checksum="55e6e6ca0e988a7ba320bef506e3910d2e2e5c1d1599a79571e144947438ab92
+          f80b9e41011f55963cb3cdb06f0e613996b0593a8f6236cd7d09a52f8b10a2e6"
+
+post_extract() {
+  # xbps-src extracts distfiles inside wrksrc, so real source is nested
+  # Move wordcraft-0.18.1/* up to wrksrc root
+  if [ -f "wordcraft-${version}/Cargo.toml" ]; then
+    mv "wordcraft-${version}"/* .
+    mv "wordcraft-${version}"/.[!.]* . 2>/dev/null || true
+    rmdir "wordcraft-${version}"
+  fi
+  ls -la
+  ls -la "craft-i18n-"*/locales/it/ | head
+}
+
+pre_build() {
+  # Find craft-i18n wherever xbps-src extracted it
+  CRAFT_I18N_DIR="$(find "${XBPS_BUILDDIR}" -maxdepth 3 -type d -name "craft-i18n-*" | head -n1)"
+  echo "CRAFT_I18N_DIR=${CRAFT_I18N_DIR}"
+  export CRAFT_I18N_DIR
+
+  ls "${CRAFT_I18N_DIR}/locales/it/"
+}
+
+do_install() {
+	# 1. Install application binaries directly from target release (prevents double compilation)
+	vbin target/${RUST_TARGET}/release/wordcraft
+	vbin target/${RUST_TARGET}/release/wordcraft-cli
+
+	# 2. Install desktop shortcut, appstream metadata, and custom mime types from upstream packaging
+	if [ -d "packaging/linux" ]; then
+		vinstall packaging/linux/ai.storyteller.wordcraft.desktop 644 usr/share/applications
+		vinstall packaging/linux/ai.storyteller.wordcraft.mime.xml 644 usr/share/mime/packages ai.storyteller.wordcraft.xml
+		vinstall packaging/linux/ai.storyteller.wordcraft.metainfo.xml.in 644 usr/share/metainfo ai.storyteller.wordcraft.metainfo.xml
+	fi
+
+	# 3. Iterate over the standard hicolor icon paths and install them with the proper app ID name
+	local size
+	for size in 16x16 24x24 32x32 48x48 64x64 128x128 256x256 512x512; do
+		if [ -f "assets/app-icon/hicolor/${size}/apps/ai.storyteller.wordcraft.png" ]; then
+			vinstall "assets/app-icon/hicolor/${size}/apps/ai.storyteller.wordcraft.png" \
+				644 "usr/share/icons/hicolor/${size}/apps"
+		fi
+	done
+
+	if [ -f "assets/app-icon/hicolor/scalable/apps/ai.storyteller.wordcraft.svg" ]; then
+		vinstall "assets/app-icon/hicolor/scalable/apps/ai.storyteller.wordcraft.svg" \
+			644 "usr/share/icons/hicolor/scalable/apps"
+	fi
+
+	# 4. Install standard software licenses and the legal NOTICE file
+	vlicense LICENSE-APACHE
+	vlicense LICENSE-MIT
+	if [ -f "NOTICE" ]; then
+		vlicense NOTICE
+	fi
+
+	# 5. Extract and bundle technical Markdown documentation
+	if [ -d "docs" ]; then
+		local docfile
+		for docfile in docs/*.md; do
+			if [ -f "$docfile" ]; then
+				vdoc "$docfile"
+			fi
+		done
+	fi
+}
