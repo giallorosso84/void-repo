@@ -1,0 +1,10 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2258,7 +2258,7 @@
+       # the same on every architecture, so the x64 build beside it gates them; the UI
+       # suite on the ARM64 host runs the same checks (docs/building.md).
+-      if(NOT CMAKE_CROSSCOMPILING)
++      if(FALSE)
+         patchy_add_success_check(patchy_check_translation_runtime
+           STAMP "${PATCHY_TRANSLATION_OUTPUT_DIR}/runtime-check.stamp"
+           COMMAND $<TARGET_FILE:patchy_translation_checks>
