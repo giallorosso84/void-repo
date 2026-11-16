@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=DashBeam
+Exec=dashbeam
+Icon=dashbeam
+Type=Application
+Terminal=false
+Categories=Network;FileTransfer;
+Comment=Send files P2P without cloud
