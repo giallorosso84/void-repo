@@ -1,0 +1,56 @@
+# Template file for 'dashbeam'
+pkgname=dashbeam
+version=0.7.2
+revision=1
+short_desc="Send files and folders anywhere without cloud - P2P, no accounts"
+maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
+license="AGPL-3.0-only"
+homepage="https://github.com/tonyantony300/dashbeam"
+distfiles="https://github.com/tonyantony300/dashbeam/archive/refs/tags/v${version}.tar.gz"
+checksum="c6bbb2100127ea7b8c6ba3bfda3ca7573c71764ff46522a92dd3b05361f14141"
+hostmakedepends="nodejs pnpm cargo pkg-config rust rustup which patchelf"
+makedepends="libwebkit2gtk41-devel libsoup3-devel libayatana-appindicator-devel librsvg-devel gtk+3-devel"
+depends="libwebkit2gtk41 libsoup3"
+nostrip=yes
+
+do_configure() {
+  :
+}
+
+do_build() {
+  export RUSTUP_HOME="$HOME/.rustup"
+  export CARGO_HOME="$HOME/.cargo"
+  export PATH="/tmp/.cargo/bin:$CARGO_HOME/bin:$HOME/.cargo/bin:$PATH"
+
+  # Void ony rustup-init, create rustup
+  if [ ! -x "$CARGO_HOME/bin/rustup" ] && [ ! -x "/tmp/.cargo/bin/rustup" ]; then
+    rustup-init -y --profile minimal --default-toolchain 1.91
+  fi
+
+  # wasm-bindgen must find da `which` inside node/pnpm
+  for d in /tmp/.cargo/bin "$CARGO_HOME/bin" "$HOME/.cargo/bin"; do
+    if [ -x "$d/wasm-bindgen" ]; then
+      ln -sf "$d/wasm-bindgen" /usr/bin/wasm-bindgen
+      ln -sf "$d/wasm-bindgen-test-runner" /usr/bin/wasm-bindgen-test-runner 2>/dev/null || true
+      break
+    fi
+  done
+  if [ ! -x /usr/bin/wasm-bindgen ]; then
+    cargo install wasm-bindgen-cli --version 0.2.126 --locked --force
+    ln -sf /tmp/.cargo/bin/wasm-bindgen /usr/bin/wasm-bindgen 2>/dev/null || ln -sf "$CARGO_HOME/bin/wasm-bindgen" /usr/bin/wasm-bindgen
+  fi
+
+  rustup target add wasm32-unknown-unknown --toolchain 1.91
+  rustup default 1.91
+
+  pnpm install --frozen-lockfile
+  pnpm tauri build --no-bundle
+}
+
+do_install() {
+  patchelf --remove-needed libc.musl-x86_64.so.1 --remove-needed libc.so src-tauri/target/release/DashBeam
+  vbin src-tauri/target/release/DashBeam dashbeam
+  vinstall ${FILESDIR}/dashbeam.desktop 644 usr/share/applications/
+  vinstall src-tauri/icons/128x128.png 644 usr/share/icons/hicolor/128x128/apps/ dashbeam.png
+  vinstall src-tauri/icons/128x128@2x.png 644 usr/share/icons/hicolor/256x256/apps/ dashbeam.png
+}
