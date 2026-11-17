@@ -1,1 +1,13 @@
-
+# Template file for 'python3-pypresence'
+pkgname=python3-pypresence
+version=4.6.1
+revision=1
+build_style=python3-module
+hostmakedepends="python3-setuptools"
+depends="python3"
+short_desc="Complete Discord IPC and Rich Presence wrapper library in Python"
+maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
+license="MIT"
+homepage="https://github.com/qwertyquerty/pypresence"
+distfiles="${PYPI_SITE}/p/pypresence/pypresence-${version}.tar.gz"
+checksum=05199516a3b4e182b637b3cd5415aab7ba542707664f634f35a7220c4f10334f
