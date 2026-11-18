@@ -10,4 +10,4 @@ maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
 license="MIT"
 homepage="https://github.com/qwertyquerty/pypresence"
 distfiles="${PYPI_SITE}/p/pypresence/pypresence-${version}.tar.gz"
-checksum=23f0366e4f5b5b91b151e10bd8134fed65ee8fc1e6688fc634e53e4eb7697ac4
+checksum=7e7e93de0e94a42314300ef6d15dd2c44c64ef74b7c749243bc226be2ab90687
