@@ -1,6 +1,6 @@
 # Template file for 'python3-pypresence'
 pkgname=python3-pypresence
-version=4.6.1
+version=4.6.2
 revision=1
 build_style=python3-module
 hostmakedepends="python3-setuptools"
@@ -10,4 +10,4 @@ maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
 license="MIT"
 homepage="https://github.com/qwertyquerty/pypresence"
 distfiles="${PYPI_SITE}/p/pypresence/pypresence-${version}.tar.gz"
-checksum=05199516a3b4e182b637b3cd5415aab7ba542707664f634f35a7220c4f10334f
+checksum=23f0366e4f5b5b91b151e10bd8134fed65ee8fc1e6688fc634e53e4eb7697ac4
