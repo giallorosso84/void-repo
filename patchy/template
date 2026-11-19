@@ -1,9 +1,9 @@
 # Template file for 'patchy'
 pkgname=patchy
-version=1.37
+version=1.39
 revision=1
 build_style=cmake
-configure_args="-DCMAKE_BUILD_TYPE=Release -DPATCHY_BUILD_TESTS=OFF"
+configure_args="-DCMAKE_BUILD_TYPE=Release -DPATCHY_BUILD_TESTS=OFF -DBUILD_TESTING=OFF"
 hostmakedepends="cmake pkg-config python3"
 makedepends="qt6-base-devel qt6-svg-devel qt6-declarative-devel qt6-tools-devel qt6-pdf-devel qt6-imageformats"
 short_desc="Open-source image editor focused on PSD compatibility and workflows familiar to Adobe Photoshop users."
@@ -11,4 +11,4 @@ maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
 license="MIT"
 homepage="https://github.com/SethRobinson/Patchy"
 distfiles="https://github.com/SethRobinson/Patchy/archive/refs/tags/v${version}.tar.gz"
-checksum=b174269713c421ae1170c0856bc10c5356bb9f311a4933c46ed0ebf4e13cdb62
+checksum=201dd38eb4454b910bea0e33551e7f0bd55e2edfa0b17ef8bdb41965bd4de362
