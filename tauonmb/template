@@ -10,9 +10,13 @@ short_desc="Tauon Music Box - modern music player"
 maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
 license="GPL-3.0-or-later"
 homepage="https://tauonmusicbox.rocks/"
+
+_kissfft_rev=f5f2a3b2f2cd02bf80639adb12cbeed125bdf420
+_miniaudio_rev=4a5b74bef029b3592c54b6048650ee5f972c1a48
+
 distfiles="https://github.com/Taiko2k/Tauon/archive/refs/tags/v${version}.tar.gz
- https://github.com/mborgerding/kissfft/archive/f5f2a3b2f2cd02bf80639adb12cbeed125bdf420.tar.gz>kissfft-f5f2a3b.tar.gz
- https://github.com/mackron/miniaudio/archive/4a5b74bef029b3592c54b6048650ee5f972c1a48.tar.gz>miniaudio-4a5b74b.tar.gz"
+ https://github.com/mborgerding/kissfft/archive/${_kissfft_rev}.tar.gz>kissfft-${_kissfft_rev:0:7}.tar.gz
+ https://github.com/mackron/miniaudio/archive/${_miniaudio_rev}.tar.gz>miniaudio-${_miniaudio_rev:0:7}.tar.gz"
 checksum="26c1558d98861d95ea08c0238e5704e4a1efb5d83ab1b0c89d61637784081166
  8e395a3c5f9e2b4a2cb91b888b243356b8fa5b90ad84ea415836a535744cdd3b
  aacb63f571608210e69c5562eb8a9e3d1cb936bdee7a2eb8ffbc40f63888d8e8"
@@ -21,22 +25,11 @@ build_wrksrc="Tauon-${version}"
 
 post_extract() {
 	rm -rf Tauon-${version}/src/phazor/kissfft Tauon-${version}/src/phazor/miniaudio
-	mv kissfft-f5f2a3b2f2cd02bf80639adb12cbeed125bdf420 Tauon-${version}/src/phazor/kissfft
-	mv miniaudio-4a5b74bef029b3592c54b6048650ee5f972c1a48 Tauon-${version}/src/phazor/miniaudio
+	mv kissfft-${_kissfft_rev} Tauon-${version}/src/phazor/kissfft
+	mv miniaudio-${_miniaudio_rev} Tauon-${version}/src/phazor/miniaudio
 }
 
 post_install() {
-	vinstall src/tauon/assets/svg/app-icon.svg 644 usr/share/icons/hicolor/scalable/apps tauon.svg
-	vmkdir usr/share/applications
-	cat > ${DESTDIR}/usr/share/applications/tauon.desktop <<EOF
-[Desktop Entry]
-Name=Tauon Music Box
-Comment=Modern music player
-Exec=tauon
-Icon=tauon
-Terminal=false
-Type=Application
-Categories=Audio;Music;Player;AudioVideo;
-StartupWMClass=tauon
-EOF
+	vinstall extra/tauonmb.desktop 644 usr/share/applications tauonmb.desktop
+	vinstall extra/tauonmb.svg 644 usr/share/icons/hicolor/scalable/apps tauonmb.svg
 }
