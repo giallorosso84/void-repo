@@ -1,0 +1,110 @@
+# Template for 'pdfcraft'
+pkgname=pdfcraft
+version=0.22.0
+revision=1
+build_style=cargo
+make_build_args="-p pdfcraft -p pdfcraft-cli"
+hostmakedepends="pkg-config"
+short_desc="Open-source, clean-room PDF reader and management utility built in pure Rust"
+maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
+license="Apache-2.0, MIT"
+homepage="https://getartcraft.com/apps/pdfcraft"
+distfiles="https://github.com/storytold/pdfcraft/archive/refs/tags/v${version}.tar.gz
+ https://github.com/storytold/craft-i18n/archive/866aff71dd63d8369eb100b9c432b5af1400c22a.tar.gz
+ https://ocrs-models.s3-accelerate.amazonaws.com/text-detection.onnx>text-detection.onnx
+ https://ocrs-models.s3-accelerate.amazonaws.com/text-recognition.onnx>text-recognition.onnx
+ https://creativecommons.org/licenses/by-sa/4.0/legalcode.txt>LICENSE-OCRS-MODELS"
+
+checksum="e9165e846d61fdd2fcc5f53c587178750b791f4b0fa6d57212b7e0adab20be7f
+a3b6455fcf158af6eaf8b78ff98ef4b5285ba4b9857d35daa05a1fdc65002ef0
+a917b23dbd9524b465df7e922641b3ff2981623df4ded5a0234004ef2fee7cfe
+86c145c2edb96c8caed5b1ebb8f44d706408922211451c309c625157dd6061c5
+28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+
+# Instruct XBPS-src to copy these files directly without attempting to uncompress them
+skip_extraction="text-detection.onnx text-recognition.onnx LICENSE-OCRS-MODELS"
+
+post_extract() {
+	# xbps-src estrae tutto dentro wrksrc, il sorgente vero è annidato
+	# Sposta pdfcraft-0.22.0/* alla radice di wrksrc
+	if [ -f "pdfcraft-${version}/Cargo.toml" ]; then
+		mv "pdfcraft-${version}"/* .
+		mv "pdfcraft-${version}"/.[!.]* . 2>/dev/null || true
+		rmdir "pdfcraft-${version}"
+	fi
+
+	# NON spostare craft-i18n dentro la root: deve restare una cartella
+	# a sé stante, con struttura locales/<lang>/{common,pdfcraft}.tsv
+	# Verifichiamo solo che ci sia
+	if ! ls -d craft-i18n-*/locales/it/ >/dev/null 2>&1; then
+		echo "ERROR: craft-i18n locales/it/ non trovato"
+		ls -la
+		exit 1
+	fi
+	ls -la craft-i18n-*/locales/it/
+}
+
+pre_build() {
+	# Trova craft-i18n dove xbps-src lo ha estratto, percorso assoluto
+	# (build.rs di pdfcraft lo vuole assoluto, come in wordcraft)
+	CRAFT_I18N_DIR="$(find "${XBPS_BUILDDIR}" -maxdepth 3 -type d -name "craft-i18n-*" | head -n1)"
+	if [ -z "${CRAFT_I18N_DIR}" ]; then
+		echo "ERROR: CRAFT_I18N_DIR non trovato"
+		exit 1
+	fi
+	echo "CRAFT_I18N_DIR=${CRAFT_I18N_DIR}"
+	export CRAFT_I18N_DIR
+
+	# Fail esplicito se mancano i cataloghi, invece di build silenziosa in inglese
+	export CRAFT_I18N_REQUIRED=1
+
+	ls "${CRAFT_I18N_DIR}/locales/it/"
+}
+
+do_install() {
+	# 1. Install application for Desktop and command line (CLI)
+	vbin target/${RUST_TARGET}/release/pdfcraft
+	vbin target/${RUST_TARGET}/release/pdfcraft-cli
+
+	# 2. Install shortcut in menu (.desktop) and mime types
+	vinstall packaging/linux/ai.storyteller.pdfcraft.desktop 644 usr/share/applications
+	vinstall packaging/linux/ai.storyteller.pdfcraft.mime.xml 644 usr/share/mime/packages ai.storyteller.pdfcraft.xml
+	vinstall packaging/linux/ai.storyteller.pdfcraft.metainfo.xml.in 644 usr/share/metainfo ai.storyteller.pdfcraft.metainfo.xml
+
+	# 3. Iterate icons and install
+	local size
+	for size in 16x16 24x24 32x32 48x48 64x64 128x128 256x256 512x512; do
+		if [ -f "assets/app-icon/hicolor/${size}/apps/ai.storyteller.pdfcraft.png" ]; then
+			vinstall "assets/app-icon/hicolor/${size}/apps/ai.storyteller.pdfcraft.png" \
+				644 "usr/share/icons/hicolor/${size}/apps"
+		fi
+	done
+
+	if [ -f "assets/app-icon/hicolor/scalable/apps/ai.storyteller.pdfcraft.svg" ]; then
+		vinstall "assets/app-icon/hicolor/scalable/apps/ai.storyteller.pdfcraft.svg" \
+    				644 "usr/share/icons/hicolor/scalable/apps"
+	fi
+
+	# 4. Install pre-fetched RTEN OCR neural models securely into the package share structure
+	vmkdir usr/share/pdfcraft/models
+	vinstall ${XBPS_SRCDISTDIR}/${pkgname}-${version}/text-detection.onnx 644 usr/share/pdfcraft/models
+	vinstall ${XBPS_SRCDISTDIR}/${pkgname}-${version}/text-recognition.onnx 644 usr/share/pdfcraft/models
+
+	# 5. Install licenses and legal NOTICE
+	vlicense ${XBPS_SRCDISTDIR}/${pkgname}-${version}/LICENSE-OCRS-MODELS
+	vlicense LICENSE-APACHE
+	vlicense LICENSE-MIT
+	if [ -f "NOTICE" ]; then
+		vlicense NOTICE
+	fi
+
+	# 6. Technical documentation in Markdown
+	if [ -d "docs" ]; then
+		local docfile
+		for docfile in docs/*.md; do
+			if [ -f "$docfile" ]; then
+				vdoc "$docfile"
+			fi
+		done
+	fi
+}
