@@ -1,6 +1,6 @@
 # Template file for 'tauonmb'
 pkgname=tauonmb
-version=13.1.1
+version=14.0.0
 revision=1
 build_style=python3-pep517
 hostmakedepends="python3-build python3-installer python3-scikit-build-core cmake ninja pkg-config gettext"
@@ -17,7 +17,7 @@ _miniaudio_rev=4a5b74bef029b3592c54b6048650ee5f972c1a48
 distfiles="https://github.com/Taiko2k/Tauon/archive/refs/tags/v${version}.tar.gz
  https://github.com/mborgerding/kissfft/archive/${_kissfft_rev}.tar.gz>kissfft-${_kissfft_rev:0:7}.tar.gz
  https://github.com/mackron/miniaudio/archive/${_miniaudio_rev}.tar.gz>miniaudio-${_miniaudio_rev:0:7}.tar.gz"
-checksum="26c1558d98861d95ea08c0238e5704e4a1efb5d83ab1b0c89d61637784081166
+checksum="c8f884618a8c6869208666ddc2f274783c3fe13388ba9c2887a2cb91700c0c86
  8e395a3c5f9e2b4a2cb91b888b243356b8fa5b90ad84ea415836a535744cdd3b
  aacb63f571608210e69c5562eb8a9e3d1cb936bdee7a2eb8ffbc40f63888d8e8"
 
