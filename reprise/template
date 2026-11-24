@@ -1,6 +1,6 @@
 # Template file for 'reprise'
 pkgname=reprise
-version=0.1.353
+version=0.1.356
 revision=1
 build_style=meson
 build_helper="rust"
@@ -11,7 +11,7 @@ maintainer="giallorosso84 <giallorosso84@voidlinux.com>"
 license="GPL-3.0-or-later"
 homepage="https://github.com/marvinbaudach/reprise"
 distfiles="https://github.com/marvinbaudach/reprise/archive/refs/tags/v${version}.tar.gz"
-checksum=a1451011d775cd3f5ad20065aacf7e64d3c5b7bb3481102acb07f109fbab748d
+checksum=1bd0c8926d3a15636db163fe0d01a8ffe451ffc7c9d037511d063ec10d1ccd50
 
 configure_args="-Dprofile=release"
 
